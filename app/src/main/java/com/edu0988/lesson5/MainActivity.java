@@ -1,11 +1,14 @@
 package com.edu0988.lesson5;
 
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CursorAdapter;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,7 +24,7 @@ import com.edu0988.lesson5.databinding.SingleItemBinding;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
+public class MainActivity extends AppCompatActivity {
 
     private UserAdapter userAdapter;
 
@@ -50,11 +53,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             Intent intent = new Intent(this, UserEditActivity.class);
             startActivity(intent);
         });
-    }
-
-    @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        return false;
     }
 
     private static class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {

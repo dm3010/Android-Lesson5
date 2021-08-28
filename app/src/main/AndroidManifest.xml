@@ -9,8 +9,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Lesson5">
-        <activity android:name="com.edu0988.lesson5.UserEditActivity"></activity>
-        <activity android:name="com.edu0988.lesson5.MainActivity">
+        <activity android:name=".activities.UserInfoActivity"></activity>
+        <activity android:name=".activities.UserEditActivity" />
+        <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

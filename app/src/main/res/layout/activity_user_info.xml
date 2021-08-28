@@ -5,43 +5,41 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".activities.UserEditActivity">
+    tools:context=".activities.UserInfoActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-
-        <EditText
-            android:id="@+id/name_et"
+        <TextView
+            android:id="@+id/name_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName"
+            android:layout_marginBottom="10dp"
             android:hint="имя"
-            android:singleLine="true"
-            android:textSize="20sp" />
+            android:textSize="24sp" />
 
-        <EditText
-            android:id="@+id/lastname_et"
+        <TextView
+            android:id="@+id/lastname_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
             android:hint="фамилия"
-            android:inputType="textPersonName"
-            android:textSize="20sp" />
+            android:textSize="24sp" />
 
-        <EditText
-            android:id="@+id/phone_et"
+        <TextView
+            android:id="@+id/phone_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="phone"
+            android:layout_marginBottom="10dp"
             android:hint="телефон"
-            android:textSize="30sp" />
+            android:textSize="24sp" />
 
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_usersave"
+        android:id="@+id/fab_userinfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
@@ -50,7 +48,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:contentDescription="Сохранить"
-        android:src="@drawable/ic_action_save" />
+        android:contentDescription="Редактировать"
+        android:src="@drawable/ic_action_edit" />
 
 </RelativeLayout>

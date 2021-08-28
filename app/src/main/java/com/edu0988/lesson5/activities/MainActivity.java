@@ -1,53 +1,66 @@
-package com.edu0988.lesson5;
+package com.edu0988.lesson5.activities;
 
-import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CursorAdapter;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.edu0988.lesson5.database.UserDBHelper;
+import com.edu0988.lesson5.model.User;
+import com.edu0988.lesson5.services.UserAPI;
+import com.edu0988.lesson5.services.UserAPISqlLite;
 import com.edu0988.lesson5.databinding.ActivityMainBinding;
 import com.edu0988.lesson5.databinding.SingleItemBinding;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
+    static UserAPI USER_API;
+
+    ExecutorService executor;
+    Handler handler;
+
     private UserAdapter userAdapter;
+    ActivityMainBinding binding;
 
     @Override
     protected void onResume() {
         super.onResume();
-        userAdapter.notifyDataSetChanged();
+        binding.swipeRefreshLayout.setRefreshing(true);
+        userAdapter.refreshUsers();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
+        executor = Executors.newSingleThreadExecutor();
+        handler = new Handler(Looper.getMainLooper());
+
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setTitle("Список пользователей");
 
-        UserDBHelper.init(this);
+        USER_API = new UserAPISqlLite(this);
 
-        userAdapter = new UserAdapter(Users.LIST);
+        userAdapter = new UserAdapter();
 
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerView.setAdapter(userAdapter);
+        binding.swipeRefreshLayout.setOnRefreshListener(() -> userAdapter.refreshUsers());
 
         binding.fab.setOnClickListener(v -> {
             Intent intent = new Intent(this, UserEditActivity.class);
@@ -55,33 +68,43 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private static class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
-        private List<User> users;
+    private class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
-        private View.OnClickListener onClickListener = v -> {
-            User user = (User) v.getTag();
-            Intent intent = new Intent(v.getContext(), UserEditActivity.class);
-            intent.putExtra("uuid", user.getUuid().toString());
+        private List<User> users = new ArrayList<>();
+
+        {
+            refreshUsers();
+        }
+
+        private void showInfoActivity(View v, User u) {
+            Intent intent = new Intent(v.getContext(), UserInfoActivity.class);
+            intent.putExtra("user", u);
             v.getContext().startActivity(intent);
-        };
-        private View.OnLongClickListener onLongClickListener = v -> {
+        }
+
+        private void showOptionMenu(View v, User u) {
             PopupMenu popup = new PopupMenu(v.getContext(), v);
             popup.getMenu().add("Удалить");
             popup.setOnMenuItemClickListener(item -> {
-                        User user = (User) v.getTag();
-                        Users.delete(user.getUuid().toString());
-                        notifyDataSetChanged();
+                        USER_API.delete(u.getUuid().toString());
+                        refreshUsers();
                         return true;
                     }
             );
             popup.show();
-            return true;
-        };
-
-        public UserAdapter(List<User> contacts) {
-            this.users = contacts;
         }
+
+        public void refreshUsers() {
+            USER_API.exec(
+                    () -> users = USER_API.getAll(),
+                    () -> {
+                        notifyDataSetChanged();
+                        binding.swipeRefreshLayout.setRefreshing(false);
+                    }
+            );
+        }
+
 
         @NonNull
         @Override
@@ -93,9 +116,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            holder.itemView.setTag(users.get(position));
-            holder.itemView.setOnClickListener(onClickListener);
-            holder.itemView.setOnLongClickListener(onLongClickListener);
+            holder.itemView.setOnClickListener(v -> showInfoActivity(v, users.get(position)));
+            holder.textViewOptions.setOnClickListener(v -> showOptionMenu(v, users.get((position))));
             holder.itemTextView.setText(
                     users.get(position).getName() + "\n" + users.get(position).getLastname()
             );
@@ -106,12 +128,14 @@ public class MainActivity extends AppCompatActivity {
             return users.size();
         }
 
-        private static class ViewHolder extends RecyclerView.ViewHolder {
+        private class ViewHolder extends RecyclerView.ViewHolder {
             private final TextView itemTextView;
+            private final TextView textViewOptions;
 
             public ViewHolder(SingleItemBinding binding) {
                 super(binding.getRoot());
                 itemTextView = binding.itemTextView;
+                textViewOptions = binding.textViewOptions;
             }
         }
     }

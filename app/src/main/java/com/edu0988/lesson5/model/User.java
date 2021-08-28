@@ -1,4 +1,4 @@
-package com.edu0988.lesson5;
+package com.edu0988.lesson5.model;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -7,13 +7,13 @@ public class User implements Serializable {
     private String name;
     private String lastname;
     private String phone;
-    private final UUID uuid;
+    private final String uuid;
 
     public User() {
-        this.uuid = UUID.randomUUID();
+        this.uuid = UUID.randomUUID().toString();
     }
 
-    public User(UUID uuid) { this.uuid = uuid; }
+    public User(String uuid) { this.uuid = uuid; }
 
     public String getName() {
         return name;
@@ -40,7 +40,7 @@ public class User implements Serializable {
     }
 
     public UUID getUuid() {
-        return uuid;
+        return UUID.fromString(uuid);
     }
 
 }

@@ -1,13 +1,16 @@
-package com.edu0988.lesson5;
+package com.edu0988.lesson5.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
+import com.edu0988.lesson5.model.User;
 import com.edu0988.lesson5.databinding.ActivityUserEditBinding;
 
 
 public class UserEditActivity extends AppCompatActivity {
+
+    User user = new User();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -16,25 +19,21 @@ public class UserEditActivity extends AppCompatActivity {
         ActivityUserEditBinding binding = ActivityUserEditBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        User user;
-        if (getIntent().hasExtra("uuid")) {
-            String uuid = getIntent().getStringExtra("uuid");
-            user = Users.get(uuid);
+        if (getIntent().hasExtra("user")) {
+            user = (User) getIntent().getSerializableExtra("user");
+            binding.nameEt.setText(user.getName());
+            binding.lastnameEt.setText(user.getLastname());
+            binding.phoneEt.setText(user.getPhone());
             setTitle("Редактирование пользователя");
         } else {
-            user = new User();
             setTitle("Новый пользователь");
         }
 
-        binding.nameEt.setText(user.getName());
-        binding.lastnameEt.setText(user.getLastname());
-        binding.phoneEt.setText(user.getPhone());
-
-        binding.fab.setOnClickListener(v -> {
+        binding.fabUsersave.setOnClickListener(v -> {
                     user.setName(binding.nameEt.getText().toString());
                     user.setLastname(binding.lastnameEt.getText().toString());
                     user.setPhone(binding.phoneEt.getText().toString());
-                    Users.update(user);
+                    MainActivity.USER_API.exec(() -> MainActivity.USER_API.update(user), null);
                     finish();
                 }
         );
